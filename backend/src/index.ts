@@ -1,19 +1,25 @@
 import express from 'express';
-import { createServer } from 'node:http';
-import { fileURLToPath } from 'node:url';
-import { dirname, join } from 'node:path';
-import { Server } from 'socket.io';
+import http from "http";
+import { Server, Socket } from 'socket.io';
+import { UserManager } from './managers/UserManager';
 
 const app = express();
-const server = createServer(app);
-const io = new Server(server);
+const server = http.createServer(app);
 
-app.get('/', (req, res) => {
-  res.sendFile(join(__dirname, 'index.html'));
+const io = new Server(server, {
+  cors :{
+    origin : "*"
+  },
 });
 
-io.on('connection', (socket) => {
+const userManager = new UserManager;
+
+io.on('connection', (socket: Socket) => {
   console.log('a user connected');
+  userManager.addUser("randomName", socket);
+  socket.on("disconnected", () => {
+    userManager.removeUser(socket.id)
+  })
 });
 
 server.listen(3000, () => {
