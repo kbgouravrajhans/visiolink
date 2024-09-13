@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import { Socket, io } from "socket.io-client";
 
-const URL = "http://localhost:3000";
+const URL = "https://vlserver-l4kwq93n.b4a.run";
 
 export const Room = ({
     name,

@@ -40,7 +40,7 @@ export class RoomManager {
             roomId
         })
     }
-    
+
     onAnswer(roomId: string, sdp: string, senderSocketid: string) {
         const room = this.rooms.get(roomId);
         if (!room) {
