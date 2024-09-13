@@ -14,20 +14,14 @@ export const Room = ({
 }) => {
     // const [searchParams, setSearchParams] = useSearchParams();
     const [lobby, setLobby] = useState(true);
-    //@ts-ignore
-    const [socket, setSocket] = useState<null | Socket>(null);
-    //@ts-ignore
+    const [socketConnection, setSocketConnection] = useState<Socket | null>(null);
     const [sendingPc, setSendingPc] = useState<null | RTCPeerConnection>(null);
-    //@ts-ignore
     const [receivingPc, setReceivingPc] = useState<null | RTCPeerConnection>(null);
-    //@ts-ignore
     const [remoteVideoTrack, setRemoteVideoTrack] = useState<MediaStreamTrack | null>(null);
-    //@ts-ignore
     const [remoteAudioTrack, setRemoteAudioTrack] = useState<MediaStreamTrack | null>(null);
-    //@ts-ignore
     const [remoteMediaStream, setRemoteMediaStream] = useState<MediaStream | null>(null);
-    const remoteVideoRef = useRef<HTMLVideoElement>();
-    const localVideoRef = useRef<HTMLVideoElement>();
+    const remoteVideoRef = useRef<HTMLVideoElement | null>(null);
+    const localVideoRef = useRef<HTMLVideoElement | null>(null);
 
     useEffect(() => {
         const socket = io(URL);
@@ -36,7 +30,10 @@ export const Room = ({
             setLobby(false);
             const pc = new RTCPeerConnection();
 
-            setSendingPc(pc);
+            if(sendingPc){
+                setSendingPc(pc);
+            }
+            
             if (localVideoTrack) {
                 console.error("added tack");
                 console.log(localVideoTrack)
@@ -51,7 +48,7 @@ export const Room = ({
             pc.onicecandidate = async (e) => {
                 console.log("receiving ice candidate locally");
                 if (e.candidate) {
-                   socket.emit("add-ice-candidate", {
+                    socket.emit("add-ice-candidate", {
                     candidate: e.candidate,
                     type: "sender",
                     roomId
@@ -84,28 +81,30 @@ export const Room = ({
                 remoteVideoRef.current.srcObject = stream;
             }
 
-            setRemoteMediaStream(stream);
-            // trickle ice 
-            setReceivingPc(pc);
-            //@ts-ignore
-            window.pcr = pc;
-            //@ts-ignore
-            pc.ontrack = (e) => {
-                alert("ontrack");
-                // console.error("inside ontrack");
-                // const {track, type} = e;
-                // if (type == 'audio') {
-                //     // setRemoteAudioTrack(track);
-                //     // @ts-ignore
-                //     remoteVideoRef.current.srcObject.addTrack(track)
-                // } else {
-                //     // setRemoteVideoTrack(track);
-                //     // @ts-ignore
-                //     remoteVideoRef.current.srcObject.addTrack(track)
-                // }
-                // //@ts-ignore
-                // remoteVideoRef.current.play();
+            if(remoteMediaStream){
+                setRemoteMediaStream(stream);
             }
+            // trickle ice 
+            if(receivingPc){
+                setReceivingPc(pc);
+            }
+            // window.pcr = pc;
+            // pc.ontrack = () => {
+            //     alert("ontrack");
+            //     // console.error("inside ontrack");
+            //     // const {track, type} = e;
+            //     // if (type == 'audio') {
+            //     //     // setRemoteAudioTrack(track);
+            //     //     // @ts-ignore
+            //     //     remoteVideoRef.current.srcObject.addTrack(track)
+            //     // } else {
+            //     //     // setRemoteVideoTrack(track);
+            //     //     // @ts-ignore
+            //     //     remoteVideoRef.current.srcObject.addTrack(track)
+            //     // }
+            //     // //@ts-ignore
+            //     // remoteVideoRef.current.play();
+            // }
 
             pc.onicecandidate = async (e) => {
                 if (!e.candidate) {
@@ -113,7 +112,7 @@ export const Room = ({
                 }
                 console.log("omn ice candidate on receiving seide");
                 if (e.candidate) {
-                   socket.emit("add-ice-candidate", {
+                    socket.emit("add-ice-candidate", {
                     candidate: e.candidate,
                     type: "receiver",
                     roomId
@@ -130,11 +129,19 @@ export const Room = ({
                 const track2 = pc.getTransceivers()[1].receiver.track
                 console.log(track1);
                 if (track1.kind === "video") {
-                    setRemoteAudioTrack(track2)
-                    setRemoteVideoTrack(track1)
+                    if(remoteAudioTrack){
+                        setRemoteAudioTrack(track2)
+                    }
+                    if(remoteVideoTrack){
+                        setRemoteVideoTrack(track1)
+                    }
                 } else {
-                    setRemoteAudioTrack(track1)
-                    setRemoteVideoTrack(track2)
+                    if(remoteAudioTrack){
+                        setRemoteAudioTrack(track1)
+                    }
+                    if(remoteVideoTrack){
+                        setRemoteVideoTrack(track2)
+                    }
                 }
                 //@ts-ignore
                 remoteVideoRef.current.srcObject.addTrack(track1)
@@ -154,8 +161,8 @@ export const Room = ({
                 // //@ts-ignore
             }, 5000)
         });
-//@ts-ignore
-        socket.on("answer", ({roomId, sdp: remoteSdp}) => {
+
+        socket.on("answer", ({sdp: remoteSdp}) => {
             setLobby(false);
             setSendingPc(pc => {
                 pc?.setRemoteDescription(remoteSdp)
@@ -184,7 +191,7 @@ export const Room = ({
             } else {
                 setSendingPc(pc => {
                     if (!pc) {
-                        console.error("sending pc nout found")
+                        console.error("sending pc not found")
                     } else {
                         // console.error(pc.ontrack)
                     }
@@ -193,8 +200,10 @@ export const Room = ({
                 });
             }
         })
-
-        setSocket(socket)
+        if(socketConnection){
+            setSocketConnection(socketConnection)
+        }
+        
     }, [name])
 
     useEffect(() => {
@@ -211,15 +220,11 @@ export const Room = ({
         <video autoPlay width={400} height={400} style={{
     transform: 'rotateY(180deg)',
     WebkitTransform: 'rotateY(180deg)' // For Safari
-}} 
-//@ts-ignore 
-ref={localVideoRef} />
+}} ref={localVideoRef} />
         {lobby ? "Waiting to connect you to someone" : null}
         <video autoPlay width={400} height={400} style={{
     transform: 'rotateY(180deg)',
     WebkitTransform: 'rotateY(180deg)' // For Safari
-}} 
-//@ts-ignore
-ref={remoteVideoRef} />
+}} ref={remoteVideoRef} />
     </div>
 }
