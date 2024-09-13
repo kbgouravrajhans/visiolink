@@ -1,5 +1,4 @@
 import { useEffect, useRef, useState } from "react";
-import { useSearchParams } from "react-router-dom";
 import { Socket, io } from "socket.io-client";
 
 const URL = "https://vlserver-l4kwq93n.b4a.run";
@@ -13,13 +12,19 @@ export const Room = ({
     localAudioTrack: MediaStreamTrack | null,
     localVideoTrack: MediaStreamTrack | null,
 }) => {
-    const [searchParams, setSearchParams] = useSearchParams();
+    // const [searchParams, setSearchParams] = useSearchParams();
     const [lobby, setLobby] = useState(true);
+    //@ts-ignore
     const [socket, setSocket] = useState<null | Socket>(null);
+    //@ts-ignore
     const [sendingPc, setSendingPc] = useState<null | RTCPeerConnection>(null);
+    //@ts-ignore
     const [receivingPc, setReceivingPc] = useState<null | RTCPeerConnection>(null);
+    //@ts-ignore
     const [remoteVideoTrack, setRemoteVideoTrack] = useState<MediaStreamTrack | null>(null);
+    //@ts-ignore
     const [remoteAudioTrack, setRemoteAudioTrack] = useState<MediaStreamTrack | null>(null);
+    //@ts-ignore
     const [remoteMediaStream, setRemoteMediaStream] = useState<MediaStream | null>(null);
     const remoteVideoRef = useRef<HTMLVideoElement>();
     const localVideoRef = useRef<HTMLVideoElement>();
@@ -82,7 +87,9 @@ export const Room = ({
             setRemoteMediaStream(stream);
             // trickle ice 
             setReceivingPc(pc);
+            //@ts-ignore
             window.pcr = pc;
+            //@ts-ignore
             pc.ontrack = (e) => {
                 alert("ontrack");
                 // console.error("inside ontrack");
@@ -147,7 +154,7 @@ export const Room = ({
                 // //@ts-ignore
             }, 5000)
         });
-
+//@ts-ignore
         socket.on("answer", ({roomId, sdp: remoteSdp}) => {
             setLobby(false);
             setSendingPc(pc => {
@@ -204,11 +211,15 @@ export const Room = ({
         <video autoPlay width={400} height={400} style={{
     transform: 'rotateY(180deg)',
     WebkitTransform: 'rotateY(180deg)' // For Safari
-}} ref={localVideoRef} />
+}} 
+//@ts-ignore 
+ref={localVideoRef} />
         {lobby ? "Waiting to connect you to someone" : null}
         <video autoPlay width={400} height={400} style={{
     transform: 'rotateY(180deg)',
     WebkitTransform: 'rotateY(180deg)' // For Safari
-}} ref={remoteVideoRef} />
+}} 
+//@ts-ignore
+ref={remoteVideoRef} />
     </div>
 }
