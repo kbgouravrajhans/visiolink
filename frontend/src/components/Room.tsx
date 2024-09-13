@@ -29,10 +29,10 @@ export const Room = ({
             console.log("sending offer");
             setLobby(false);
             const pc = new RTCPeerConnection();
-
-            if(sendingPc){
-                setSendingPc(pc);
-            }
+            console.log(sendingPc)
+            // if(sendingPc){
+            // }
+            setSendingPc(pc);
             
             if (localVideoTrack) {
                 console.error("added tack");
@@ -81,13 +81,16 @@ export const Room = ({
                 remoteVideoRef.current.srcObject = stream;
             }
 
-            if(remoteMediaStream){
-                setRemoteMediaStream(stream);
-            }
+            // if(remoteMediaStream){
+            // }
+            console.log(remoteMediaStream)
+            setRemoteMediaStream(stream);
             // trickle ice 
-            if(receivingPc){
-                setReceivingPc(pc);
-            }
+            // if(receivingPc){
+            // }
+            console.log(receivingPc)
+
+            setReceivingPc(pc);
             // window.pcr = pc;
             // pc.ontrack = () => {
             //     alert("ontrack");
@@ -129,19 +132,21 @@ export const Room = ({
                 const track2 = pc.getTransceivers()[1].receiver.track
                 console.log(track1);
                 if (track1.kind === "video") {
-                    if(remoteAudioTrack){
-                        setRemoteAudioTrack(track2)
-                    }
-                    if(remoteVideoTrack){
-                        setRemoteVideoTrack(track1)
-                    }
+                    // if(remoteAudioTrack){
+                    // }
+                    console.log(remoteAudioTrack)
+                    setRemoteAudioTrack(track2)
+                    console.log(remoteVideoTrack)
+                    // if(remoteVideoTrack){
+                    // }
+                    setRemoteVideoTrack(track1)
                 } else {
-                    if(remoteAudioTrack){
-                        setRemoteAudioTrack(track1)
-                    }
-                    if(remoteVideoTrack){
-                        setRemoteVideoTrack(track2)
-                    }
+                    // if(remoteAudioTrack){
+                    // }
+                    setRemoteAudioTrack(track1)
+                    // if(remoteVideoTrack){
+                    // }
+                    setRemoteVideoTrack(track2)
                 }
                 //@ts-ignore
                 remoteVideoRef.current.srcObject.addTrack(track1)
@@ -181,7 +186,7 @@ export const Room = ({
             if (type == "sender") {
                 setReceivingPc(pc => {
                     if (!pc) {
-                        console.error("receicng pc nout found")
+                        console.error("receiving pc not found")
                     } else {
                         console.error(pc.ontrack)
                     }
