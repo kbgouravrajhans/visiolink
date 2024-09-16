@@ -4,11 +4,11 @@ import { Socket, io } from "socket.io-client";
 const URL = "https://vlserver-l4kwq93n.b4a.run";
 
 export const Room = ({
-    name,
+    // name,
     localAudioTrack,
     localVideoTrack
 }: {
-    name: string,
+    // name: string,
     localAudioTrack: MediaStreamTrack | null,
     localVideoTrack: MediaStreamTrack | null,
 }) => {
@@ -164,7 +164,7 @@ export const Room = ({
                 //     remoteVideoRef.current.srcObject.addTrack(track)
                 // }
                 // //@ts-ignore
-            }, 5000)
+            }, 500)
         });
 
         socket.on("answer", ({sdp: remoteSdp}) => {
@@ -220,16 +220,51 @@ export const Room = ({
         }
     }, [localVideoRef])
 
-    return <div>
-        Hi {name}
-        <video autoPlay width={400} height={400} style={{
-    transform: 'rotateY(180deg)',
-    WebkitTransform: 'rotateY(180deg)' // For Safari
-}} ref={localVideoRef} />
-        {lobby ? "Waiting to connect you to someone" : null}
-        <video autoPlay width={400} height={400} style={{
-    transform: 'rotateY(180deg)',
-    WebkitTransform: 'rotateY(180deg)' // For Safari
-}} ref={remoteVideoRef} />
-    </div>
+    return (
+        <div className="flex md:flex-row flex-col items-center justify-evenly min-h-screen transition-all duration-200">
+            {/* Video containers */}
+            {[localVideoRef, remoteVideoRef].map((ref, idx) => (
+                <div
+                key={idx}
+                className={`flex items-center justify-center ${lobby && idx === 1 ? 'hidden' : ''}`}
+                >
+                <video
+                    autoPlay
+                    className="md:max-w-lg rounded-xl transition-all duration-200"
+                    style={{ transform: 'rotateY(180deg)' }}
+                    ref={ref}
+                />
+                </div>
+            ))}
+
+            {/* Lobby Spinner */}
+            {lobby && (
+                <div className="flex items-center justify-center min-h-screen">
+                <div className="flex items-center space-x-3">
+                    <svg
+                    className="animate-spin h-10 w-10 text-indigo-500"
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    >
+                    <circle
+                        className="opacity-25"
+                        cx="12"
+                        cy="12"
+                        r="10"
+                        stroke="currentColor"
+                        strokeWidth="4"
+                    ></circle>
+                    <path
+                        className="opacity-75"
+                        fill="currentColor"
+                        d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"
+                    ></path>
+                    </svg>
+                    <p className="text-indigo-500 text-lg">Connecting to someone...</p>
+                </div>
+            </div>
+        )}
+    </div>  
+    );
 }

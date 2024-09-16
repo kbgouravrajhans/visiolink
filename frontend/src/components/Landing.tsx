@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { Room } from "./Room";
 
 export const Landing = () => {
-  const [name, setName] = useState("");
+  // const [name, setName] = useState("");
   const [localAudioTrack, setLocalAudioTrack] =
     useState<MediaStreamTrack | null>(null);
   const [localVideoTrack, setlocalVideoTrack] =
@@ -37,26 +37,29 @@ export const Landing = () => {
 
   if (!joined) {
     return (
-      <div>
+      <div className="flex flex-col items-center justify-center min-h-screen space-y-4">
+        {/* Video Container */}
         <video
           autoPlay
           ref={videoRef}
-          style={{
-            transform: "rotateY(180deg)",
-            WebkitTransform: "rotateY(180deg)", // For Safari
-          }}
+          className="md:max-w-lg rounded-xl transition-all duration-200"
+          style={{ transform: "rotateY(180deg)" }}
         ></video>
 
+        {/* Input for Name */}
         <input
           type="text"
-          onChange={(e) => {
-            setName(e.target.value);
-          }}
-        ></input>
+          placeholder="Enter your name"
+          className="border border-gray-300 w-full max-w-sm md:max-w-lg rounded px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-200"
+          // onChange={(e) => setName(e.target.value)}
+          aria-label="Enter your name"
+        />
+
+        {/* Join Button */}
         <button
-          onClick={() => {
-            setJoined(true);
-          }}
+          className="bg-blue-500 text-white px-4 py-2 rounded-3xl hover:bg-blue-600 transition-all duration-200 w-24"
+          onClick={() => setJoined(true)}
+          aria-label="Join the session"
         >
           Join
         </button>
@@ -66,7 +69,7 @@ export const Landing = () => {
 
   return (
     <Room
-      name={name}
+      // name={name}
       localAudioTrack={localAudioTrack}
       localVideoTrack={localVideoTrack}
     />
